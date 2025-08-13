@@ -1,0 +1,17 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "accelerate>=1.10.0",
+    "fastapi>=0.116.1",
+    "python-multipart>=0.0.20",
+    "huggingface-hub>=0.34.4",
+    "pillow>=11.3.0",
+    "requests>=2.32.4",
+    "torch>=2.8.0",
+    "transformers>=4.55.0",
+    "uvicorn[standard]>=0.35.0",
+]

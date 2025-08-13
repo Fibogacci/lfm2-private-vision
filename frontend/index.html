@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LFM2-VL Private Vision by Fibogacci.pl</title>
+    <!-- Loading Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Simple animation for loading indicator */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans flex items-center justify-center min-h-screen p-4">
+
+    <main class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl w-full max-w-4xl p-6 md:p-8">
+        <header class="text-center mb-6 relative">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">LFM2-VL Private Vision by Fibogacci.pl</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Paste an image link, ask a question and see what the AI vision model responds.</p>
+            
+        </header>
+
+        <!-- Model Management -->
+        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Model Management</h3>
+                <div class="flex items-center space-x-2">
+                    <div id="model-status" class="w-3 h-3 rounded-full bg-gray-400"></div>
+                    <span id="current-model" class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+                    <button id="settings-btn" type="button" class="p-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-700" aria-label="Settings" title="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings h-5 w-5"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 450M Model -->
+                <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg" id="model-450M">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">LFM2-VL-450M</h4>
+                        <div id="status-450M" class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-600">Not Downloaded</div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Fast inference, ~1GB size</p>
+                    <div class="flex gap-2">
+                        <button id="download-450M" class="flex-1 px-3 py-2 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition">Download</button>
+                        <button id="load-450M" class="flex-1 px-3 py-2 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50" disabled>Load</button>
+                        <button id="delete-450M" class="px-3 py-2 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50" disabled title="Delete model cache">🗑️</button>
+                    </div>
+                    <div class="mt-2 hidden" id="validation-450M">
+                        <div class="text-xs text-gray-600 dark:text-gray-300" id="validation-text-450M"></div>
+                    </div>
+                    <div class="mt-3 hidden" id="progress-wrap-450M">
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div id="progress-450M" class="bg-blue-600 h-3 transition-all" style="width: 0%"></div>
+                        </div>
+                        <div class="text-xs text-gray-600 dark:text-gray-300 mt-1" id="progress-text-450M">Preparing...</div>
+                    </div>
+                </div>
+                
+                <!-- 1.6B Model - Temporarily Disabled -->
+                <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg opacity-50" id="model-1.6B">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">LFM2-VL-1.6B</h4>
+                        <div id="status-1.6B" class="text-xs px-2 py-1 rounded bg-gray-400 dark:bg-gray-600">Temporarily Disabled</div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Better accuracy, ~3GB size - Currently unavailable due to performance optimization</p>
+                    <div class="flex gap-2">
+                        <button id="download-1.6B" class="flex-1 px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed" disabled>Download</button>
+                        <button id="load-1.6B" class="flex-1 px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed" disabled>Load</button>
+                        <button id="delete-1.6B" class="px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed" disabled title="Delete model cache">🗑️</button>
+                    </div>
+                    <div class="mt-2 hidden" id="validation-1.6B">
+                        <div class="text-xs text-gray-600 dark:text-gray-300" id="validation-text-1.6B"></div>
+                    </div>
+                    <div class="mt-3 hidden" id="progress-wrap-1.6B">
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div id="progress-1.6B" class="bg-blue-600 h-3 transition-all" style="width: 0%"></div>
+                        </div>
+                        <div class="text-xs text-gray-600 dark:text-gray-300 mt-1" id="progress-text-1.6B">Preparing...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input form -->
+        <form id="analysis-form" class="space-y-4">
+            <div>
+                <label for="image-url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
+                <input type="url" id="image-url" name="image-url" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="https://..." value="https://images.unsplash.com/photo-1583337130417-3346a1be7dee">
+            </div>
+            <div>
+                <label for="image-file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Or upload image</label>
+                <input type="file" id="image-file" name="image-file" accept="image/*" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If a file is selected, it will be used instead of the URL.</p>
+            </div>
+            <div>
+                <label for="question" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Your Question</label>
+                <input type="text" id="question" name="question" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="e.g. What is the dog doing?" required value="What is the dog doing?">
+            </div>
+            <button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 flex items-center justify-center">
+                <span id="btn-text">Analyze</span>
+                <div id="loader" class="loader w-5 h-5 rounded-full ml-3 hidden"></div>
+            </button>
+        </form>
+
+        <!-- Results section -->
+        <div id="result-container" class="mt-8 hidden">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">Analysis Result</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <!-- Image display -->
+                <div class="bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <img id="result-image" src="" alt="Analyzed image" class="w-full h-auto object-cover">
+                </div>
+                <!-- Response display -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg h-full flex flex-col justify-center">
+                    <div class="mb-4">
+                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Question:</p>
+                        <p id="result-question" class="text-lg text-gray-800 dark:text-gray-200"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">AI Response:</p>
+                        <p id="result-answer" class="text-lg font-semibold text-blue-600 dark:text-blue-400"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings modal -->
+        <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Generation Settings</h3>
+                    <button id="settings-close" class="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white">✕</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm mb-1">Max new tokens</label>
+                        <input type="number" id="max-new-tokens" class="w-full px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700" placeholder="300" min="1" max="2048">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Do sample</label>
+                        <select id="do-sample" class="w-full px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700">
+                            <option value="">Default (false)</option>
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Temperature</label>
+                        <input type="number" step="0.01" id="temperature" class="w-full px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700" placeholder="e.g. 0.7">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Top-p</label>
+                        <input type="number" step="0.01" id="top-p" class="w-full px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700" placeholder="e.g. 0.9">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Repetition penalty</label>
+                        <input type="number" step="0.01" id="repetition-penalty" class="w-full px-3 py-2 rounded border bg-gray-50 dark:bg-gray-700" placeholder="e.g. 1.1">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button id="settings-reset" class="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700">Reset</button>
+                    <button id="settings-save" class="px-4 py-2 rounded bg-blue-600 text-white">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error container -->
+        <div id="error-container" class="mt-6 hidden bg-red-100 dark:bg-red-900/50 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-4 rounded-lg" role="alert">
+            <p class="font-bold">An error occurred</p>
+            <p id="error-message"></p>
+        </div>
+        <!-- Info container -->
+        <div id="info-container" class="mt-3 hidden bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 rounded-lg" role="status">
+            <p class="font-bold">Info</p>
+            <p id="info-message"></p>
+        </div>
+    </main>
+
+    <script>
+        // FastAPI backend URLs
+        const API_BASE = 'http://127.0.0.1:8000';
+        const API_URL = `${API_BASE}/analyze/`;
+        const API_URL_FILE = `${API_BASE}/analyze/file`;
+        const MODEL_STATUS_URL = `${API_BASE}/model/status`;
+        const MODEL_SWITCH_URL = `${API_BASE}/model/switch`;
+        const MODEL_DOWNLOAD_URL = `${API_BASE}/model/download`;
+        const MODEL_LOAD_URL = `${API_BASE}/model/load`;
+        const MODEL_DOWNLOAD_STATUS_URL = `${API_BASE}/model/download/status`;
+        const MODEL_VALIDATE_URL = `${API_BASE}/model/validate`;
+        const MODEL_DELETE_URL = `${API_BASE}/model/delete`;
+        // Settings state and elements
+        const settings = {
+            max_new_tokens: null,
+            do_sample: null,
+            temperature: null,
+            top_p: null,
+            repetition_penalty: null,
+        };
+
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const settingsClose = document.getElementById('settings-close');
+        const settingsSave = document.getElementById('settings-save');
+        const settingsReset = document.getElementById('settings-reset');
+        const inputMaxNewTokens = document.getElementById('max-new-tokens');
+        const inputDoSample = document.getElementById('do-sample');
+        const inputTemperature = document.getElementById('temperature');
+        const inputTopP = document.getElementById('top-p');
+        const inputRepetitionPenalty = document.getElementById('repetition-penalty');
+
+        function openSettings() {
+            inputMaxNewTokens.value = settings.max_new_tokens ?? '';
+            inputDoSample.value = settings.do_sample === null ? '' : String(settings.do_sample);
+            inputTemperature.value = settings.temperature ?? '';
+            inputTopP.value = settings.top_p ?? '';
+            inputRepetitionPenalty.value = settings.repetition_penalty ?? '';
+            settingsModal.classList.remove('hidden');
+        }
+        function closeSettings() { settingsModal.classList.add('hidden'); }
+        function resetSettings() {
+            settings.max_new_tokens = null;
+            settings.do_sample = null;
+            settings.temperature = null;
+            settings.top_p = null;
+            settings.repetition_penalty = null;
+            closeSettings();
+        }
+        function saveSettings() {
+            const parseNum = (v) => (v === '' || v === null) ? null : Number(v);
+            const parseBoolOpt = (v) => (v === '' ? null : (v === 'true'));
+            settings.max_new_tokens = parseNum(inputMaxNewTokens.value);
+            settings.do_sample = parseBoolOpt(inputDoSample.value);
+            settings.temperature = parseNum(inputTemperature.value);
+            settings.top_p = parseNum(inputTopP.value);
+            settings.repetition_penalty = parseNum(inputRepetitionPenalty.value);
+            closeSettings();
+        }
+        settingsBtn.addEventListener('click', openSettings);
+        settingsClose.addEventListener('click', closeSettings);
+        settingsReset.addEventListener('click', resetSettings);
+        settingsSave.addEventListener('click', saveSettings);
+
+
+        // DOM elements
+        const form = document.getElementById('analysis-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        
+        const resultContainer = document.getElementById('result-container');
+        const resultImage = document.getElementById('result-image');
+        const resultQuestion = document.getElementById('result-question');
+        const resultAnswer = document.getElementById('result-answer');
+
+        const errorContainer = document.getElementById('error-container');
+        const errorMessage = document.getElementById('error-message');
+        
+        // Model management elements
+        const modelStatus = document.getElementById('model-status');
+        const currentModelSpan = document.getElementById('current-model');
+        
+        // Model status elements
+        const status450M = document.getElementById('status-450M');
+        const status16B = document.getElementById('status-1.6B');
+        const download450M = document.getElementById('download-450M');
+        const download16B = document.getElementById('download-1.6B');
+        const load450M = document.getElementById('load-450M');
+        const load16B = document.getElementById('load-1.6B');
+        const delete450M = document.getElementById('delete-450M');
+        const delete16B = document.getElementById('delete-1.6B');
+        const model450M = document.getElementById('model-450M');
+        const model16B = document.getElementById('model-1.6B');
+        const validation450M = document.getElementById('validation-450M');
+        const validation16B = document.getElementById('validation-1.6B');
+        const validationText450M = document.getElementById('validation-text-450M');
+        const validationText16B = document.getElementById('validation-text-1.6B');
+
+        // Function to manage loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnText.classList.add('hidden');
+                loader.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            } else {
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        // Function to display errors
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+        }
+        function showInfo(message) {
+            const infoContainer = document.getElementById('info-container');
+            const infoMessage = document.getElementById('info-message');
+            infoMessage.textContent = message;
+            infoContainer.classList.remove('hidden');
+            setTimeout(() => infoContainer.classList.add('hidden'), 3000);
+        }
+        
+        // Function to update model status
+        async function updateModelStatus() {
+            try {
+                const response = await fetch(MODEL_STATUS_URL);
+                const data = await response.json();
+                
+                // Update current model display
+                const modelNames = {
+                    '450M': 'LFM2-VL-450M',
+                    '1.6B': 'LFM2-VL-1.6B',
+                    'None': 'No model loaded'
+                };
+                currentModelSpan.textContent = modelNames[data.current_model] || data.current_model;
+                
+                // Update status indicator
+                if (data.model_loaded) {
+                    modelStatus.className = 'w-3 h-3 rounded-full bg-green-500';
+                } else {
+                    modelStatus.className = 'w-3 h-3 rounded-full bg-red-500';
+                }
+                
+                // Update model card states with validation info
+                const validation450M = data.model_validation ? data.model_validation['450M'] : null;
+                const validation16B = data.model_validation ? data.model_validation['1.6B'] : null;
+                updateModelCard('450M', data.downloaded_models, data.current_model, data.model_loaded, validation450M);
+                // updateModelCard('1.6B', data.downloaded_models, data.current_model, data.model_loaded, validation16B); // Disabled
+                
+            } catch (error) {
+                console.error('Error fetching model status:', error);
+                currentModelSpan.textContent = 'Error';
+                modelStatus.className = 'w-3 h-3 rounded-full bg-red-500';
+            }
+        }
+        
+        // Function to update individual model card
+        function updateModelCard(modelType, downloadedModels, currentModel, modelLoaded, validationInfo = null) {
+            const isDownloaded = downloadedModels.includes(modelType);
+            const isActive = currentModel === modelType && modelLoaded;
+            
+            const statusElement = modelType === '450M' ? status450M : status16B;
+            const downloadBtn = modelType === '450M' ? download450M : download16B;
+            const loadBtn = modelType === '450M' ? load450M : load16B;
+            const deleteBtn = modelType === '450M' ? delete450M : delete16B;
+            const modelCard = modelType === '450M' ? model450M : model16B;
+            const validationDiv = modelType === '450M' ? validation450M : validation16B;
+            const validationText = modelType === '450M' ? validationText450M : validationText16B;
+            
+            // Determine model status based on validation info
+            let modelComplete = isDownloaded;
+            let hasIssues = false;
+            
+            if (validationInfo) {
+                modelComplete = validationInfo.is_complete;
+                hasIssues = validationInfo.issues && validationInfo.issues.length > 0;
+                
+                // Update validation display
+                if (validationInfo.exists && hasIssues) {
+                    validationDiv.classList.remove('hidden');
+                    const issues = validationInfo.issues.slice(0, 2); // Show max 2 issues
+                    const sizeInfo = validationInfo.total_size_mb ? ` (${validationInfo.total_size_mb.toFixed(1)}MB)` : '';
+                    validationText.innerHTML = `⚠️ ${issues.join(', ')}${sizeInfo}`;
+                } else {
+                    validationDiv.classList.add('hidden');
+                }
+            } else {
+                validationDiv.classList.add('hidden');
+            }
+            
+            // Update status badge
+            if (isActive) {
+                statusElement.textContent = 'Active';
+                statusElement.className = 'text-xs px-2 py-1 rounded bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200';
+                modelCard.className = 'p-4 border-2 border-green-500 dark:border-green-400 rounded-lg bg-green-50 dark:bg-green-900/20';
+            } else if (modelComplete) {
+                statusElement.textContent = 'Downloaded';
+                statusElement.className = 'text-xs px-2 py-1 rounded bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200';
+                modelCard.className = 'p-4 border-2 border-blue-300 dark:border-blue-600 rounded-lg';
+            } else if (validationInfo && validationInfo.exists && hasIssues) {
+                statusElement.textContent = 'Incomplete';
+                statusElement.className = 'text-xs px-2 py-1 rounded bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200';
+                modelCard.className = 'p-4 border-2 border-yellow-400 dark:border-yellow-600 rounded-lg bg-yellow-50 dark:bg-yellow-900/20';
+            } else {
+                statusElement.textContent = 'Not Downloaded';
+                statusElement.className = 'text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300';
+                modelCard.className = 'p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg';
+            }
+            
+            // Update button states
+            const modelExists = validationInfo && validationInfo.exists;
+            
+            if (modelComplete) {
+                downloadBtn.textContent = 'Downloaded';
+                downloadBtn.disabled = true;
+                downloadBtn.className = 'flex-1 px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed';
+                
+                loadBtn.disabled = isActive;
+                if (isActive) {
+                    loadBtn.textContent = 'Active';
+                    loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-green-400 text-white rounded cursor-not-allowed';
+                } else {
+                    loadBtn.textContent = 'Load';
+                    loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition';
+                }
+                
+                // Enable delete button for complete models (unless active)
+                deleteBtn.disabled = isActive;
+                deleteBtn.className = isActive 
+                    ? 'px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed' 
+                    : 'px-3 py-2 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition';
+                    
+            } else if (modelExists && hasIssues) {
+                // Incomplete/corrupted model
+                downloadBtn.textContent = 'Re-download';
+                downloadBtn.disabled = false;
+                downloadBtn.className = 'flex-1 px-3 py-2 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 transition';
+                
+                loadBtn.textContent = 'Cannot Load';
+                loadBtn.disabled = true;
+                loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed';
+                
+                // Enable delete button for corrupted models
+                deleteBtn.disabled = false;
+                deleteBtn.className = 'px-3 py-2 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition';
+                
+            } else {
+                // No model present
+                downloadBtn.textContent = 'Download';
+                downloadBtn.disabled = false;
+                downloadBtn.className = 'flex-1 px-3 py-2 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition';
+                
+                loadBtn.textContent = 'Load';
+                loadBtn.disabled = true;
+                loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50';
+                
+                // Disable delete button when no model
+                deleteBtn.disabled = true;
+                deleteBtn.className = 'px-3 py-2 text-xs bg-gray-400 text-white rounded cursor-not-allowed';
+            }
+        }
+        
+        // Function to download model
+        async function downloadModel(modelType) {
+            const downloadBtn = modelType === '450M' ? download450M : download16B;
+            const progressWrap = document.getElementById(`progress-wrap-${modelType}`);
+            const progressBar = document.getElementById(`progress-${modelType}`);
+            const progressText = document.getElementById(`progress-text-${modelType}`);
+            const originalText = downloadBtn.textContent;
+            
+            try {
+                downloadBtn.textContent = 'Downloading...';
+                downloadBtn.disabled = true;
+                downloadBtn.className = 'flex-1 px-3 py-2 text-xs bg-yellow-500 text-white rounded cursor-not-allowed';
+                progressWrap.classList.remove('hidden');
+                progressBar.style.width = '10%';
+                progressText.textContent = 'Starting...';
+                
+                const response = await fetch(MODEL_DOWNLOAD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_type: modelType
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok && response.status !== 202) {
+                    throw new Error(data.detail || `HTTP error! status: ${response.status}`);
+                }
+                // If accepted or immediate OK, poll status until done/error
+                let done = false;
+                let tries = 0;
+                while (!done && tries < 1800) { // up to 3 min
+                    await new Promise(r => setTimeout(r, 100));
+                    tries++;
+                    const s = await fetch(MODEL_DOWNLOAD_STATUS_URL);
+                    const sj = await s.json();
+                    const prog = Math.max(10, sj.progress || 10);
+                    progressBar.style.width = `${prog}%`;
+                    
+                    // Enhanced progress text with detailed info
+                    let progressDetails = `${sj.phase || 'working'}... ${prog}%`;
+                    
+                    if (sj.current_file && sj.current_file_size_mb) {
+                        progressDetails += `\n📄 ${sj.current_file} (${sj.current_file_size_mb} MB)`;
+                    }
+                    
+                    if (sj.download_rate_mbps) {
+                        progressDetails += ` • ${sj.download_rate_mbps} MB cached`;
+                    }
+                    
+                    if (sj.completed_files && sj.total_files) {
+                        progressDetails += ` • ${sj.completed_files}/${sj.total_files} files`;
+                    }
+                    
+                    if (sj.stall_detected) {
+                        progressDetails += ` ⚠️ (slow connection)`;
+                    }
+                    
+                    progressText.innerHTML = progressDetails.replace(/\n/g, '<br>');
+                    
+                    if (sj.phase === 'done' || sj.error) {
+                        done = true;
+                        if (sj.error) throw new Error(sj.error);
+                    }
+                }
+                
+                // Update status after successful download
+                await updateModelStatus();
+                
+                // Show success message briefly
+                showInfo(`✅ ${data.message || 'Model downloaded successfully'}`);
+                
+            } catch (error) {
+                console.error('Error downloading model:', error);
+                showError(`❌ Failed to download model: ${error.message}`);
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+                downloadBtn.className = 'flex-1 px-3 py-2 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition';
+            } finally {
+                progressWrap.classList.add('hidden');
+            }
+        }
+        
+        // Function to load model
+        async function loadModel(modelType) {
+            const loadBtn = modelType === '450M' ? load450M : load16B;
+            const originalText = loadBtn.textContent;
+            
+            try {
+                loadBtn.textContent = 'Loading...';
+                loadBtn.disabled = true;
+                loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-yellow-500 text-white rounded cursor-not-allowed';
+                
+                currentModelSpan.textContent = 'Loading...';
+                modelStatus.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                
+                const response = await fetch(MODEL_LOAD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_type: modelType
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || `HTTP error! status: ${response.status}`);
+                }
+                
+                // Update status after successful load
+                await updateModelStatus();
+                
+                // Show success message briefly
+                showInfo(`✅ ${data.message}`);
+                
+            } catch (error) {
+                console.error('Error loading model:', error);
+                showError(`❌ Failed to load model: ${error.message}`);
+                loadBtn.textContent = originalText;
+                loadBtn.disabled = false;
+                loadBtn.className = 'flex-1 px-3 py-2 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition';
+                await updateModelStatus(); // Restore previous state
+            }
+        }
+        
+        // Function to delete model
+        async function deleteModel(modelType) {
+            const deleteBtn = modelType === '450M' ? delete450M : delete16B;
+            const originalText = deleteBtn.textContent;
+            
+            // Confirm deletion
+            const modelName = modelType === '450M' ? 'LFM2-VL-450M' : 'LFM2-VL-1.6B';
+            if (!confirm(`Are you sure you want to delete ${modelName}? This will remove all cached files and you'll need to download the model again.`)) {
+                return;
+            }
+            
+            try {
+                deleteBtn.textContent = '⏳';
+                deleteBtn.disabled = true;
+                deleteBtn.className = 'px-3 py-2 text-xs bg-yellow-500 text-white rounded cursor-not-allowed';
+                
+                const response = await fetch(MODEL_DELETE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model_type: modelType
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || `HTTP error! status: ${response.status}`);
+                }
+                
+                // Update status after successful deletion
+                await updateModelStatus();
+                
+                // Show success message briefly
+                showInfo(`✅ ${data.message}`);
+                
+            } catch (error) {
+                console.error('Error deleting model:', error);
+                showError(`❌ Failed to delete model: ${error.message}`);
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = false;
+                deleteBtn.className = 'px-3 py-2 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition';
+                await updateModelStatus(); // Restore previous state
+            }
+        }
+        
+        // Form submission handler
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form action
+            
+            // Hide old results and errors
+            resultContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+            
+            setLoading(true);
+
+            const formData = new FormData(form);
+            const imageFile = document.getElementById('image-file').files[0];
+            const imageUrl = formData.get('image-url');
+            const question = formData.get('question');
+
+            const hasUrl = imageUrl && String(imageUrl).trim().length > 0;
+            if (!imageFile && !hasUrl) {
+                setLoading(false);
+                showError('Please provide an image URL or choose a file.');
+                return;
+            }
+
+            try {
+                let response;
+                if (imageFile) {
+                    const fd = new FormData();
+                    fd.append('file', imageFile);
+                    fd.append('question', question);
+                    if (settings.max_new_tokens !== null) fd.append('max_new_tokens', String(settings.max_new_tokens));
+                    if (settings.do_sample !== null) fd.append('do_sample', String(settings.do_sample));
+                    if (settings.temperature !== null) fd.append('temperature', String(settings.temperature));
+                    if (settings.top_p !== null) fd.append('top_p', String(settings.top_p));
+                    if (settings.repetition_penalty !== null) fd.append('repetition_penalty', String(settings.repetition_penalty));
+                    response = await fetch(API_URL_FILE, {
+                        method: 'POST',
+                        body: fd,
+                    });
+                } else {
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image_url: imageUrl,
+                            question: question,
+                            max_new_tokens: settings.max_new_tokens,
+                            do_sample: settings.do_sample,
+                            temperature: settings.temperature,
+                            top_p: settings.top_p,
+                            repetition_penalty: settings.repetition_penalty,
+                        }),
+                    });
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle API errors (e.g. validation errors 4xx or server errors 5xx)
+                    throw new Error(data.detail || `HTTP error! status: ${response.status}`);
+                }
+                
+                // Update and display results
+                if (imageFile) {
+                    const previewUrl = URL.createObjectURL(imageFile);
+                    resultImage.src = previewUrl;
+                } else {
+                    resultImage.src = imageUrl;
+                }
+                resultQuestion.textContent = data.question;
+                resultAnswer.textContent = data.answer;
+                resultContainer.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error communicating with API:', error);
+                showError(`Failed to connect to API or an error occurred: ${error.message}. Make sure the backend server is running.`);
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        // Model button event listeners
+        download450M.addEventListener('click', () => downloadModel('450M'));
+        // download16B.addEventListener('click', () => downloadModel('1.6B')); // Disabled
+        load450M.addEventListener('click', () => loadModel('450M'));
+        // load16B.addEventListener('click', () => loadModel('1.6B')); // Disabled
+        delete450M.addEventListener('click', () => deleteModel('450M'));
+        // delete16B.addEventListener('click', () => deleteModel('1.6B')); // Disabled
+        
+        // Initialize model status on page load
+        updateModelStatus();
+    </script>
+</body>
+</html>
