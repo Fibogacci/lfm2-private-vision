@@ -2,6 +2,8 @@
 
 🤖 A **private, local** AI-powered image analysis application that uses LiquidAI's advanced LFM2-VL vision-language models to analyze images and answer questions about them. **All processing happens locally** - no data is sent to external servers.
 
+
+![LFM2 Private Vision Interface](images/lfm2-vl-private-vision.png)
 ![Vision LFM2 Interface](https://img.shields.io/badge/Interface-Web_Based-blue) ![Python](https://img.shields.io/badge/Python-3.8+-green) ![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## ✨ Features
@@ -61,6 +63,8 @@ This will:
 5. Start analyzing images!
 
 ## 📖 How to Use
+![LFM2 Private Vision Interface Demo](images/lfm2-vl-private-vision3.png)
+
 
 ### Web Interface
 
